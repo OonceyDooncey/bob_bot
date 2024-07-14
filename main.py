@@ -48,6 +48,21 @@ async def coinflip(interaction: discord.Interaction):
   await interaction.response.send_message(content=f"The coin landed on '{result}'")
 
 
+#Show account balance
+@client.tree.command(name="balance", description="Shows balance buckeronis")
+async def balance(interaction: discord.Interaction):
+  user_id = interaction.user.id
+  user_in_db = user_exists(user_id)
+  balance = retrieve_balance(user_id)
+  if not user_in_db:
+    await interaction.response.send_message(content="You have 1000 buckeronis left")
+    return
+  if balance == None:
+    await interaction.response.send_message(content="Oh no... seems like you are broke")
+    return
+  await interaction.response.send_message(content=f"You have {balance} buckeronis left")
+
+
 #Gamba game
 @client.tree.command(name="gamba", description="Gamble coins")
 async def gamba(interaction: discord.Integration, amount: int):
@@ -64,6 +79,14 @@ def user_exists(id):
   if results == None:
     return False
   return True
+
+
+def retrieve_balance(id):
+  global collection
+  result = collection.find_one({"id": id}, {"balance": 1, "_id": 0})
+  if result:
+    balance = result["balance"]
+    return balance
 
 
 
