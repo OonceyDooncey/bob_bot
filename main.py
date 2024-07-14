@@ -23,10 +23,9 @@ client = commands.Bot(command_prefix='$', intents=discord.Intents.all(), help_co
 
 @client.event
 async def on_ready():
-  global members
-  print(f"{client.user.name} is running")
+  print(Fore.GREEN + client.user.name + " is running")
   synced = await client.tree.sync()
-  print(f"{str(len(synced))} slashed commands synced")
+  print(Fore.GREEN + str(len(synced)) + " slashed commands synced")
 
 
 #Help menu
