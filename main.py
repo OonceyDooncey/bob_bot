@@ -1,11 +1,22 @@
 import os
 from dotenv import load_dotenv
+from colorama import Fore
+from pymongo import MongoClient
 import discord
 from discord.ext import commands
 import random
 
+#Load env file
 load_dotenv(".env")
 TOKEN = os.getenv("TOKEN")
+DB_USERNAME = os.getenv("DB_USERNAME")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+
+
+#Connect to database
+cluster = MongoClient(f"mongodb+srv://{DB_USERNAME}:{DB_PASSWORD}@cluster0.yrl41lw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+db = cluster["bob_bot"]
+collection = db["scores"]
 
 #Initialise BOT
 client = commands.Bot(command_prefix='$', intents=discord.Intents.all())
