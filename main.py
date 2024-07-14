@@ -66,13 +66,42 @@ async def balance(interaction: discord.Interaction):
 #Gamba game
 @client.tree.command(name="gamba", description="Gamble coins")
 async def gamba(interaction: discord.Integration, amount: int):
-  result = random.choice(["win", "lose"])
-  user = interaction.user.display_name
-  if result == "win":
-    winnings = round(amount * 1.5)
-    await interaction.response.send_message(content=f"Congratulations, {user} won {winnings} buckeronis")
+  username = interaction.user.display_name
+  user_id = interaction.user.id
+
+  # Check if user account exist
+  if user_exists(user_id):
+    balance = retrieve_balance(user_id)
+    if balance < amount:
+      await interaction.response.send_message(content=f"You do not have enough buckeronis")
+      return
+    result = random.choice(["win", "lose"])
+    if result == "win":
+      winnings = round(amount * 1.5)
+      new_balance = balance + winnings
+      update_buckeronis(user_id, username, new_balance, True)
+      await interaction.response.send_message(content=f"Congratulations, {username} won {winnings} buckeronis")
+    else:
+      new_balance = balance - amount
+      update_buckeronis(user_id, username, new_balance, True)
+      await interaction.response.send_message(content=f"{username} lost {amount} buckeronis, better luck next time")
+  # If user account does not exist 
   else:
-    await interaction.response.send_message(content=f"{user} lost {amount} buckeronis, better luck next time")
+    if amount > 1000:
+      await interaction.response.send_message(content=f"You only have 1000 buckeronis")
+      return
+    result = random.choice(["win", "lose"])
+    if result == "win":
+      winnings = round(amount * 1.5)
+      new_balance = 1000 + winnings
+      update_buckeronis(user_id, username, new_balance)
+      await interaction.response.send_message(content=f"Congratulations, {username} won {winnings} buckeronis")
+    else:
+      new_balance = 1000 - amount
+      update_buckeronis(user_id, username, new_balance)
+      await interaction.response.send_message(content=f"{username} lost {amount} buckeronis, better luck next time")
+
+
 def user_exists(id):
   global collection
   results = collection.find_one({"id": id})
@@ -89,6 +118,12 @@ def retrieve_balance(id):
     return balance
 
 
+def update_buckeronis(id: str, username: str, amount: int,  *exist: bool):
+  global collection
+  if exist:
+    collection.update_one({"id": id}, {"$set": {"balance": amount}})
+    return
+  collection.insert_one({"id": id, "username": username, "balance": amount})
 
 
 client.run(TOKEN)
