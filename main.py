@@ -58,6 +58,14 @@ async def gamba(interaction: discord.Integration, amount: int):
     await interaction.response.send_message(content=f"Congratulations, {user} won {winnings} buckeronis")
   else:
     await interaction.response.send_message(content=f"{user} lost {amount} buckeronis, better luck next time")
+def user_exists(id):
+  global collection
+  results = collection.find_one({"id": id})
+  if results == None:
+    return False
+  return True
+
+
 
 
 client.run(TOKEN)
