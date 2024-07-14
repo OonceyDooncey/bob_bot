@@ -19,7 +19,7 @@ db = cluster["bob_bot"]
 collection = db["scores"]
 
 #Initialise BOT
-client = commands.Bot(command_prefix='$', intents=discord.Intents.all())
+client = commands.Bot(command_prefix='$', intents=discord.Intents.all(), help_command=None)
 
 @client.event
 async def on_ready():
@@ -32,7 +32,14 @@ async def on_ready():
 #Help menu
 @client.tree.command(name="help", description="List of commands available for BOB_BOT")
 async def help(interaction: discord.Interaction):
-  await interaction.response.send_message(content=f"/coinflip to flip a coin\n/gamba (amount) to gamble for a 50% chance of winning")
+  embed = discord.Embed(
+    color=discord.Colour.dark_teal(),
+    title="Commands",
+    description="List of commands available from BOB"
+  )
+  embed.add_field(name="Commands", value="/coinflip\n/balance\n/gamba")
+  embed.add_field(name="Description", value="Flip a coin\nShows balance buckeronis\nGamble an amount for a 50% chance of winning")
+  await interaction.response.send_message(embed=embed)
 
 
 #Flip coin
