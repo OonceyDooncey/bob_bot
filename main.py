@@ -36,8 +36,8 @@ async def help(interaction: discord.Interaction):
     title="Commands",
     description="List of commands available from BOB"
   )
-  embed.add_field(name="Commands", value="/coinflip\n/balance\n/gamba")
-  embed.add_field(name="Description", value="Flip a coin\nShows balance buckeronis\nGamble an amount for a 50% chance of winning")
+  embed.add_field(name="Commands", value="/coinflip\n/balance\n/gamba\n/duel")
+  embed.add_field(name="Description", value="Flip a coin\nShows balance buckeronis\nGamble an amount for a 50% chance of winning\nChallenge a target for buckeronis")
   await interaction.response.send_message(embed=embed)
 
 
@@ -68,10 +68,10 @@ async def balance(interaction: discord.Interaction):
 async def gamba(interaction: discord.Integration, amount: int):
   username = interaction.user.display_name
   user_id = interaction.user.id
+  balance = retrieve_balance(user_id)
 
   # Check if user account exist
   if user_exists(user_id):
-    balance = retrieve_balance(user_id)
     if balance < amount:
       await interaction.response.send_message(content=f"You do not have enough buckeronis")
       return
@@ -93,14 +93,80 @@ async def gamba(interaction: discord.Integration, amount: int):
     result = random.choice(["win", "lose"])
     if result == "win":
       winnings = round(amount * 1.5)
-      new_balance = 1000 + winnings
-      update_buckeronis(user_id, username, new_balance)
+      new_balance = balance + winnings
+      update_buckeronis(user_id, username, new_balance, False)
       await interaction.response.send_message(content=f"Congratulations, {username} won {winnings} buckeronis")
     else:
-      new_balance = 1000 - amount
-      update_buckeronis(user_id, username, new_balance)
+      new_balance = balance - amount
+      update_buckeronis(user_id, username, new_balance, False)
       await interaction.response.send_message(content=f"{username} lost {amount} buckeronis, better luck next time")
 
+
+#Duel game
+class DuelButton(discord.ui.View):
+  def __init__(self, user, target, amount, user_id, target_id):
+    super().__init__(timeout=30)
+    self.user: str = user
+    self.target: str = target
+    self.amount: int = amount
+    self.user_id: str = user_id
+    self.target_id: str = target_id
+  @discord.ui.button(label="Accept")
+  async def accept(self, interaction: discord.Interaction, button: discord.ui.Button):
+    if interaction.user.display_name == self.user:
+      await interaction.response.send_message(content="You cannot accept your own challenge")
+    elif interaction.user.display_name != self.target:
+      await interaction.response.send_message(content="You are not the duel target")
+    else:
+      button.disabled = True 
+      button.label = "Accepted"
+      await interaction.response.edit_message(view=self)
+      winner = random.choice([self.user, self.target])
+      if winner == self.user:
+        winner_id = self.user_id
+        loser = self.target
+        loser_id = self.target_id
+      else:
+        winner_id = self.target_id
+        loser = self.user
+        loser_id = self.user_id
+      winner_balance = retrieve_balance(winner_id)
+      winner_balance += self.amount
+      if user_exists(winner_id):
+        update_buckeronis(winner_id, winner, winner_balance, True)
+      else:
+        update_buckeronis(winner_id, winner, winner_balance, False)
+      loser_balance = retrieve_balance(loser_id)
+      loser_balance -= self.amount
+      if user_exists(loser_id):
+        update_buckeronis(loser_id, loser, loser_balance, True)
+      else:
+        update_buckeronis(loser_id, loser, loser_balance, False)
+      await interaction.followup.send(content=f"Duel winner: <@{winner_id}>, you have won {self.amount} buckeronis")
+  #Implement a timeout function
+
+
+@client.tree.command(name="duel", description="Initiate duel with a user")
+async def duel(interaction: discord.Interaction, target: str, amount: int):
+  user = interaction.user.display_name
+  user_id = interaction.user.id
+  members = [{"name": member.display_name, "id":member.id} for member in interaction.guild.members]
+  names = [member.display_name for member in interaction.guild.members] #Maybe check if theres a better way to check for this
+  balance = retrieve_balance(user_id)
+  if amount > balance:
+    await interaction.response.send_message(content="You do not have enough buckeronis")
+    return
+  if target == user:
+    await interaction.response.send_message(content="You cannot challenge yourself")
+    return
+  if target not in names:
+      await interaction.response.send_message(content="Unable to challenge a user that is not in the server")
+      return
+  for member in members:
+    if member["name"] == target:
+      target_id = member["id"]
+      await interaction.response.send_message(content=f"<@{target_id}>, {user} has challenged you to a duel for {amount} buckeronis", view=DuelButton(user, target, amount, user_id, target_id))
+  
 
 def user_exists(id):
   global collection
@@ -115,10 +181,12 @@ def retrieve_balance(id):
   result = collection.find_one({"id": id}, {"balance": 1, "_id": 0})
   if result:
     balance = result["balance"]
-    return balance
+  else:
+    balance = 1000
+  return balance
 
 
-def update_buckeronis(id: str, username: str, amount: int,  *exist: bool):
+def update_buckeronis(id: str, username: str, amount: int,  exist: bool):
   global collection
   if exist:
     collection.update_one({"id": id}, {"$set": {"balance": amount}})
