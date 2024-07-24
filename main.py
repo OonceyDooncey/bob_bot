@@ -105,10 +105,14 @@ class DuelButton(discord.ui.View):
 
   @discord.ui.button(label="Accept")
   async def accept(self, interaction: discord.Interaction, button: discord.ui.Button):
+    target_balance = retrieve_balance(self.target_id)
     if interaction.user.display_name == self.user:
       await interaction.response.send_message(content="You cannot accept your own challenge")
     elif interaction.user.display_name != self.target:
       await interaction.response.send_message(content="You are not the duel target")
+    elif target_balance < self.amount:
+      await interaction.response.send_message(content=f"<@{self.target_id}>, you do not have enough buckeronis to accept the duel. You only have {target_balance} buckeronis.")
+      return
     else:
       button.disabled = True 
       button.label = "Accepted"
