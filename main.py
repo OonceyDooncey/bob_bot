@@ -70,6 +70,9 @@ async def gamba(interaction: discord.Integration, amount: int):
   user_id = interaction.user.id
   balance = retrieve_balance(user_id)
 
+  if amount < 0:
+    await interaction.response.send_message(content="Invalid amount")
+    return
   if balance < amount:
     await interaction.response.send_message(content=f"You do not have enough buckeronis, you only have {balance} buckeronis")
     return
