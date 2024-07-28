@@ -59,7 +59,7 @@ async def coinflip(interaction: discord.Interaction):
 async def balance(interaction: discord.Interaction):
   user_id = interaction.user.id
   balance = retrieve_balance(user_id)
-  if int(balance) == 0:
+  if balance == 0:
     await interaction.response.send_message(content="Oh no... seems like you are broke")
     return
   await interaction.response.send_message(content=f"You have {balance} buckeronis left")
@@ -186,7 +186,7 @@ def retrieve_balance(id):
   global collection
   result = collection.find_one({"id": id}, {"balance": 1, "_id": 0})
   if result:
-    balance = result["balance"]
+    balance = int(result["balance"])
   else:
     balance = 10000
   return balance
