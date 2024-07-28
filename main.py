@@ -111,9 +111,9 @@ class DuelButton(discord.ui.View):
   @discord.ui.button(label="Accept")
   async def accept(self, interaction: discord.Interaction, button: discord.ui.Button):
     target_balance = retrieve_balance(self.target_id)
-    if interaction.user.display_name == self.user:
+    if interaction.user.name == self.user:
       await interaction.response.send_message(content="You cannot accept your own challenge")
-    elif interaction.user.display_name != self.target:
+    elif interaction.user.name != self.target:
       await interaction.response.send_message(content="You are not the duel target")
     elif target_balance < self.amount:
       await interaction.response.send_message(content=f"<@{self.target_id}>, you do not have enough buckeronis to accept the duel. You only have {target_balance} buckeronis.")
@@ -147,15 +147,11 @@ class DuelButton(discord.ui.View):
 
 
 @client.tree.command(name="duel", description="Initiate duel with a user")
-async def duel(interaction: discord.Interaction, target: str, amount: int):
-  user = interaction.user.display_name
 @app_commands.choices(target=[app_commands.Choice(name="Enki", value=USER4), app_commands.Choice(name="Tya", value=USER1), app_commands.Choice(name="Quack", value=USER2), app_commands.Choice(name="Minka", value=USER3)])
 async def duel(interaction: discord.Interaction, target: app_commands.Choice[str], amount: str):
   username = interaction.user.name
   user_displayname = interaction.user.display_name
   user_id = interaction.user.id
-  members = [{"name": member.display_name, "id":member.id} for member in interaction.guild.members]
-  names = [member.display_name for member in interaction.guild.members] #Maybe check if theres a better way to check for this
   members = [{"name": member.name, "id":member.id} for member in interaction.guild.members]
   names = [member.name for member in interaction.guild.members] #Maybe check if theres a better way to check for this
   balance = retrieve_balance(user_id)
