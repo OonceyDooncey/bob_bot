@@ -67,25 +67,31 @@ async def balance(interaction: discord.Interaction):
 
 #Gamba game
 @client.tree.command(name="gamba", description="Gamble coins")
-async def gamba(interaction: discord.Integration, amount: int):
+async def gamba(interaction: discord.Integration, amount: str):
   username = interaction.user.display_name
   user_id = interaction.user.id
   balance = retrieve_balance(user_id)
+  
+  try:
+    amt = calculate_amt(amount, balance)
+  except AttributeError:
+    await interaction.response.send_message(content="Invalid input")
+    return
 
-  if amount < 0:
+  if amt < 0:
     await interaction.response.send_message(content="Invalid amount")
     return
-  if balance < amount:
+  if amt > balance or amt == 0:
     await interaction.response.send_message(content=f"You do not have enough buckeronis, you only have {balance} buckeronis")
     return
   result = random.choice(["win", "lose"])
   if result == "win":
-    winnings = round(amount * 1.5)
+    winnings = round(amt * 1.5)
     new_balance = balance + winnings
     await interaction.response.send_message(content=f"Congratulations, {username} won {winnings} buckeronis")
   else:
-    new_balance = balance - amount
-    await interaction.response.send_message(content=f"{username} lost {amount} buckeronis, better luck next time")
+    new_balance = balance - amt
+    await interaction.response.send_message(content=f"{username} lost {amt} buckeronis, better luck next time")
 
   if user_exists(user_id):
     update_buckeronis(user_id, username, new_balance, True)
@@ -155,7 +161,8 @@ async def duel(interaction: discord.Interaction, target: app_commands.Choice[str
   members = [{"name": member.name, "id":member.id} for member in interaction.guild.members]
   names = [member.name for member in interaction.guild.members] #Maybe check if theres a better way to check for this
   balance = retrieve_balance(user_id)
-  if amount > balance:
+  amt = calculate_amt(amount, balance)
+  if amt > balance:
     await interaction.response.send_message(content=f"You do not have enough buckeronis, you only have {balance} buckeronis")
     return
   if target.value == username:
@@ -197,3 +204,13 @@ def update_buckeronis(id: str, username: str, amount: int,  exist: bool):
 
 
 client.run(TOKEN)
+def calculate_amt(amount, balance):
+  result = re.search(r"^(?:(\d+%?)|(all))$", amount)
+
+  if result.group(1) and "%" in result.group(1):
+    n, _ = result.group(1).split("%")
+    return round(int(n) / 100 * balance)
+  if result.group(1) and "%" not in result.group(1):
+    return int(result.group(1))
+  if result.group(2):
+    return balance
