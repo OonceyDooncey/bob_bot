@@ -150,23 +150,28 @@ class DuelButton(discord.ui.View):
 async def duel(interaction: discord.Interaction, target: str, amount: int):
   user = interaction.user.display_name
 @app_commands.choices(target=[app_commands.Choice(name="Enki", value=USER4), app_commands.Choice(name="Tya", value=USER1), app_commands.Choice(name="Quack", value=USER2), app_commands.Choice(name="Minka", value=USER3)])
+async def duel(interaction: discord.Interaction, target: app_commands.Choice[str], amount: str):
+  username = interaction.user.name
+  user_displayname = interaction.user.display_name
   user_id = interaction.user.id
   members = [{"name": member.display_name, "id":member.id} for member in interaction.guild.members]
   names = [member.display_name for member in interaction.guild.members] #Maybe check if theres a better way to check for this
+  members = [{"name": member.name, "id":member.id} for member in interaction.guild.members]
+  names = [member.name for member in interaction.guild.members] #Maybe check if theres a better way to check for this
   balance = retrieve_balance(user_id)
   if amount > balance:
     await interaction.response.send_message(content=f"You do not have enough buckeronis, you only have {balance} buckeronis")
     return
-  if target == user:
+  if target.value == username:
     await interaction.response.send_message(content="You cannot challenge yourself")
     return
-  if target not in names:
+  if target.value not in names:
       await interaction.response.send_message(content="Unable to challenge a user that is not in the server")
       return
   for member in members:
-    if member["name"] == target:
+    if member["name"] == target.value:
       target_id = member["id"]
-      await interaction.response.send_message(content=f"<@{target_id}>, {user} has challenged you to a duel for {amount} buckeronis. You have 30 seconds to accept.", view=DuelButton(user, target, amount, user_id, target_id, interaction))
+      await interaction.response.send_message(content=f"<@{target_id}>, {user_displayname} has challenged you to a duel for {amt} buckeronis. You have 30 seconds to accept.", view=DuelButton(username, target.value, amt, user_id, target_id, interaction))
   
 
 def user_exists(id):
