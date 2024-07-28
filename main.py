@@ -177,6 +177,22 @@ async def duel(interaction: discord.Interaction, target: app_commands.Choice[str
       await interaction.response.send_message(content=f"<@{target_id}>, {user_displayname} has challenged you to a duel for {amt} buckeronis. You have 30 seconds to accept.", view=DuelButton(username, target.value, amt, user_id, target_id, interaction))
   
 
+@client.tree.command(name="leaderboard", description="Show the current leaderboard for buckeronis")
+async def leaderboard(interaction: discord.Interaction):
+  global collection
+  names = [result["username"] for result in collection.find().sort({"balance": -1, "username": 1})]
+  balance = [str(result["balance"]) for result in collection.find().sort({"balance": -1, "username": 1})]
+  embed = discord.Embed(
+    color=discord.Colour.brand_red(),
+    title="Leaderboard",
+    description="Leaderboard for buckeronis"
+  )
+  players = "\n".join(names)
+  buckeronis = "\n".join(balance)
+  embed.add_field(name="Player", value=players)
+  embed.add_field(name="Buckeronis", value=buckeronis)
+  await interaction.response.send_message(embed=embed)
+
 def user_exists(id):
   global collection
   results = collection.find_one({"id": id})
