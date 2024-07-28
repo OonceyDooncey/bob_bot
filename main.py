@@ -4,6 +4,8 @@ from colorama import Fore
 from pymongo import MongoClient
 import discord
 from discord.ext import commands
+from discord import app_commands
+import re
 import random
 
 #Load env file
@@ -11,6 +13,10 @@ load_dotenv(".env")
 TOKEN = os.getenv("TOKEN")
 DB_USERNAME = os.getenv("DB_USERNAME")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
+USER1 = os.getenv("TYA")
+USER2 = os.getenv("QUACK")
+USER3 = os.getenv("MINKA")
+USER4 = os.getenv("ENKI")
 
 
 #Connect to database
@@ -143,6 +149,7 @@ class DuelButton(discord.ui.View):
 @client.tree.command(name="duel", description="Initiate duel with a user")
 async def duel(interaction: discord.Interaction, target: str, amount: int):
   user = interaction.user.display_name
+@app_commands.choices(target=[app_commands.Choice(name="Enki", value=USER4), app_commands.Choice(name="Tya", value=USER1), app_commands.Choice(name="Quack", value=USER2), app_commands.Choice(name="Minka", value=USER3)])
   user_id = interaction.user.id
   members = [{"name": member.display_name, "id":member.id} for member in interaction.guild.members]
   names = [member.display_name for member in interaction.guild.members] #Maybe check if theres a better way to check for this
