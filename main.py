@@ -88,10 +88,10 @@ async def gamba(interaction: discord.Integration, amount: str):
   if result == "win":
     winnings = round(amt * 1.5)
     new_balance = balance + winnings
-    await interaction.response.send_message(content=f"Congratulations, {username} won {winnings} buckeronis")
+    await interaction.response.send_message(content=f"Congratulations, {username} won {winnings} buckeronis. You now have {new_balance} buckeronis.")
   else:
     new_balance = balance - amt
-    await interaction.response.send_message(content=f"{username} lost {amt} buckeronis, better luck next time")
+    await interaction.response.send_message(content=f"{username} lost {amt} buckeronis, better luck next time. You now have {new_balance} buckeronis.")
 
   if user_exists(user_id):
     update_buckeronis(user_id, username, new_balance, True)
@@ -219,7 +219,6 @@ def update_buckeronis(id: str, username: str, amount: int,  exist: bool):
   collection.insert_one({"id": id, "username": username, "balance": amount})
 
 
-client.run(TOKEN)
 def calculate_amt(amount, balance):
   result = re.search(r"^(?:(\d+%?)|(all))$", amount)
 
@@ -230,3 +229,4 @@ def calculate_amt(amount, balance):
     return int(result.group(1))
   if result.group(2):
     return balance
+client.run(TOKEN)
