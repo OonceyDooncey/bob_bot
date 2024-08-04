@@ -7,6 +7,11 @@ from discord.ext import commands
 from discord import app_commands
 import re
 import random
+from keep_alive import keep_alive
+
+
+keep_alive()
+
 
 #Load env file
 load_dotenv(".env")
