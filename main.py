@@ -1,5 +1,4 @@
 import os
-from dotenv import load_dotenv
 from colorama import Fore
 from pymongo import MongoClient
 import discord
@@ -14,14 +13,13 @@ keep_alive()
 
 
 #Load env file
-load_dotenv(".env")
-TOKEN = os.getenv("TOKEN")
-DB_USERNAME = os.getenv("DB_USERNAME")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-USER1 = os.getenv("TYA")
-USER2 = os.getenv("QUACK")
-USER3 = os.getenv("MINKA")
-USER4 = os.getenv("ENKI")
+TOKEN = os.environ.get("TOKEN")
+DB_USERNAME = os.environ.get("DB_USERNAME")
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
+USER1 = os.environ.get("TYA")
+USER2 = os.environ.get("QUACK")
+USER3 = os.environ.get("MINKA")
+USER4 = os.environ.get("ENKI")
 
 
 #Connect to database
