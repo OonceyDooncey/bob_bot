@@ -87,7 +87,7 @@ async def gamba(interaction: discord.Integration, amount: str):
   if amt > balance or amt == 0:
     await interaction.response.send_message(content=f"You do not have enough buckeronis, you only have {balance} buckeronis")
     return
-  result = random.choice(["win", "lose"])
+  result = random.choice(["win", "win", "win", "lose", "lose"])
   if result == "win":
     winnings = round(amt * 1.5)
     new_balance = balance + winnings
