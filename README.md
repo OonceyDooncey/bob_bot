@@ -1,7 +1,5 @@
 # Discord Game Bot
 
-#### Video Demo: [Discord bot demo (youtube.com)](https://www.youtube.com/watch?v=1RZyjtBdpas)
-
 #### A discord game bot inspired by a game from twitch chat.
 
 Built with:
@@ -25,11 +23,13 @@ Built with:
 
 ## Running the bot
 
-You will need to first create a discord application at [Discord Developer Portal — My Applications](https://discord.com/developers/applications)
+You will first need to create a discord application at [Discord Developer Portal — My Applications] (https://discord.com/developers/applications). Then, replace the token with your own token obtained from Discord.
+
+Do take note that the database is built with MongoDB, so if you are planning to use a different database. You will need to adjust the functions "user_exists", "retrieve_balance" and "update_buckeronis".
 
 ```
 git clone https://github.com/OonceyDooncey/bob_bot.git
-Python project.py
+python main.py
 ```
 
 To use custom display name in duel, you will need to amend the name and value accordingly
