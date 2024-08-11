@@ -45,8 +45,8 @@ async def help(interaction: discord.Interaction):
     title="Commands",
     description="List of commands available from BOB"
   )
-  embed.add_field(name="Commands", value="/coinflip\n/balance\n/gamba\n/duel")
-  embed.add_field(name="Description", value="Flip a coin\nShows balance buckeronis\nGamble an amount for a 50% chance of winning\nChallenge a target for buckeronis")
+  embed.add_field(name="Commands", value="/coinflip\n/balance\n/gamba\n/duel\n/leaderboard")
+  embed.add_field(name="Description", value="Flip a coin\nShows balance buckeronis\nGamble for a 50% chance of winning\nChallenge a target for buckeronis\nView current leaderboard")
   await interaction.response.send_message(embed=embed)
 
 
