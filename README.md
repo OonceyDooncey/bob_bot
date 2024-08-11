@@ -25,7 +25,7 @@ Built with:
 
 You will first need to create a discord application at [Discord Developer Portal — My Applications] (https://discord.com/developers/applications). Then, replace the token with your own token obtained from Discord.
 
-Do take note that the database is built with MongoDB, so if you are planning to use a different database. You will need to adjust the functions "user_exists", "retrieve_balance" and "update_buckeronis".
+Do take note that the database is built with MongoDB. If you are planning to use a different database, you will need to adjust the functions "user_exists", "retrieve_balance" and "update_buckeronis".
 
 ```
 git clone https://github.com/OonceyDooncey/bob_bot.git
